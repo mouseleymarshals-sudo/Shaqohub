@@ -134,7 +134,7 @@ export function AuthPage() {
         </form>
 
         <p className="mt-6 text-center text-xs text-gray-400">
-          By continuing you agree to ShaqoHub's Terms of Service and Privacy Policy.
+          By continuing you agree to TeachLink's Terms of Service and Privacy Policy.
         </p>
       </div>
     </div>

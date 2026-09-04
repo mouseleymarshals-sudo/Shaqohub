@@ -2,14 +2,13 @@ import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Logo } from '../components/Logo';
 import { Spinner } from '../components/Feedback';
-import { SchoolTeacherIcon, LecturerIcon, SchoolIcon, UniversityIcon } from '../components/Icons';
 import type { UserRole } from '../lib/supabase';
 
-const roleOptions: { value: UserRole; label: string; desc: string; icon: React.FC<{ size?: number; className?: string }> }[] = [
-  { value: 'school_teacher', label: 'School Teacher', desc: 'Primary & secondary educator', icon: SchoolTeacherIcon },
-  { value: 'university_lecturer', label: 'University Lecturer', desc: 'Higher education staff', icon: LecturerIcon },
-  { value: 'school', label: 'School', desc: 'Primary or secondary school', icon: SchoolIcon },
-  { value: 'university', label: 'University', desc: 'Higher education institution', icon: UniversityIcon },
+const roleOptions: { value: UserRole; label: string; desc: string; image: string }[] = [
+  { value: 'school_teacher', label: 'School Teacher', desc: 'Primary & secondary educator', image: 'https://images.pexels.com/photos/5212342/pexels-photo-5212342.jpeg?auto=compress&cs=tinysrgb&h=400&w=600' },
+  { value: 'university_lecturer', label: 'University Lecturer', desc: 'Higher education staff', image: 'https://images.pexels.com/photos/8197553/pexels-photo-8197553.jpeg?auto=compress&cs=tinysrgb&h=400&w=600' },
+  { value: 'school', label: 'School', desc: 'Primary or secondary school', image: 'https://images.pexels.com/photos/8926848/pexels-photo-8926848.jpeg?auto=compress&cs=tinysrgb&h=400&w=600' },
+  { value: 'university', label: 'University', desc: 'Higher education institution', image: 'https://images.pexels.com/photos/14495769/pexels-photo-14495769.jpeg?auto=compress&cs=tinysrgb&h=400&w=600' },
 ];
 
 export function AuthPage() {
@@ -108,15 +107,30 @@ export function AuthPage() {
                     key={opt.value}
                     type="button"
                     onClick={() => setRole(opt.value)}
-                    className={`flex flex-col items-start gap-0.5 rounded-xl border p-3 text-left transition-all ${
+                    className={`group flex flex-col overflow-hidden rounded-xl border text-left transition-all ${
                       role === opt.value
-                        ? 'border-primary-500 bg-primary-50 ring-2 ring-primary-500/20'
-                        : 'border-gray-200 bg-white hover:border-gray-300'
+                        ? 'border-primary-500 ring-2 ring-primary-500/20'
+                        : 'border-gray-200 hover:border-gray-300'
                     }`}
                   >
-                    <span className="text-primary-600"><opt.icon size={26} /></span>
-                    <span className="text-sm font-semibold text-gray-900">{opt.label}</span>
-                    <span className="text-[11px] text-gray-500">{opt.desc}</span>
+                    <div className="relative h-24 w-full overflow-hidden">
+                      <img
+                        src={opt.image}
+                        alt={opt.label}
+                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                      {role === opt.value && (
+                        <div className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-primary-600 text-white shadow-md">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round"><path d="M5 12l5 5L20 7" /></svg>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex flex-col gap-0.5 p-3">
+                      <span className="text-sm font-semibold text-gray-900">{opt.label}</span>
+                      <span className="text-[11px] text-gray-500">{opt.desc}</span>
+                    </div>
                   </button>
                 ))}
               </div>

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase, Job, Application } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
-import { Spinner, EmptyState } from '../components/Feedback';
+import { EmptyState, SkeletonList, Spinner } from '../components/Feedback';
 
 interface JobWithApps extends Job {
   applications?: Application[];
@@ -63,12 +63,19 @@ export function MyJobsPage() {
   };
 
   if (loading) {
-    return <div className="flex justify-center py-20"><Spinner size={28} /></div>;
+    return (
+      <div>
+        <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-gray-100 px-5 py-4">
+          <h1 className="text-lg font-bold text-gray-900">My Job Postings</h1>
+          <p className="text-xs text-gray-500">Manage your listings and review applications</p>
+        </div>
+        <div className="px-5 py-4"><SkeletonList count={3} /></div>
+      </div>
+    );
   }
 
   return (
     <div className="animate-fade-in">
-      {/* Header */}
       <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-gray-100 px-5 py-4">
         <h1 className="text-lg font-bold text-gray-900">My Job Postings</h1>
         <p className="text-xs text-gray-500">Manage your listings and review applications</p>
@@ -83,12 +90,12 @@ export function MyJobsPage() {
           />
         ) : (
           <div className="space-y-4">
-            {jobs.map((job) => {
+            {jobs.map((job, idx) => {
               const apps = job.applications || [];
               const pending = apps.filter((a) => a.status === 'pending').length;
               const isExpanded = expandedJob === job.id;
               return (
-                <div key={job.id} className="card animate-fade-in">
+                <div key={job.id} className="card animate-fade-in" style={{ animationDelay: `${idx * 50}ms` }}>
                   <button
                     onClick={() => setExpandedJob(isExpanded ? null : job.id)}
                     className="w-full text-left"
@@ -104,11 +111,10 @@ export function MyJobsPage() {
                           {pending > 0 && <span className="badge bg-accent-100 text-accent-700">{pending} pending</span>}
                         </div>
                       </div>
-                      <svg className={`text-gray-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                      <svg className={`text-gray-400 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" /></svg>
                     </div>
                   </button>
 
-                  {/* Actions */}
                   <div className="mt-3 flex gap-2">
                     <button onClick={() => navigate(`/jobs/${job.id}`)} className="text-xs font-medium text-primary-600 hover:underline">View Details</button>
                     <span className="text-gray-200">|</span>
@@ -117,7 +123,6 @@ export function MyJobsPage() {
                     </button>
                   </div>
 
-                  {/* Applications */}
                   {isExpanded && (
                     <div className="mt-4 border-t border-gray-100 pt-4 space-y-3 animate-fade-in">
                       {apps.length === 0 ? (
@@ -126,7 +131,7 @@ export function MyJobsPage() {
                         apps.map((app) => {
                           const applicant = app.profiles as unknown as Application['profiles'];
                           return (
-                            <div key={app.id} className="rounded-xl bg-gray-50 p-3">
+                            <div key={app.id} className="rounded-xl bg-gray-50 p-3 transition-colors hover:bg-gray-100/50">
                               <div className="flex items-center gap-3">
                                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-100 text-sm font-semibold text-primary-700">
                                   {applicant?.full_name?.[0]?.toUpperCase() || '?'}
@@ -145,14 +150,14 @@ export function MyJobsPage() {
                                     <button
                                       onClick={() => updateAppStatus(app.id, 'accepted')}
                                       disabled={updatingId === app.id}
-                                      className="flex-1 rounded-lg bg-success-500 py-2 text-xs font-semibold text-white hover:bg-success-600 disabled:opacity-50"
+                                      className="flex-1 rounded-lg bg-success-500 py-2 text-xs font-semibold text-white hover:bg-success-600 disabled:opacity-50 transition-colors"
                                     >
                                       Accept
                                     </button>
                                     <button
                                       onClick={() => updateAppStatus(app.id, 'rejected')}
                                       disabled={updatingId === app.id}
-                                      className="flex-1 rounded-lg bg-gray-200 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-300 disabled:opacity-50"
+                                      className="flex-1 rounded-lg bg-gray-200 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-300 disabled:opacity-50 transition-colors"
                                     >
                                       Reject
                                     </button>

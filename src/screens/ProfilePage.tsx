@@ -85,66 +85,75 @@ export function ProfilePage() {
     university: 'University',
   };
 
+  const displayName = profile.full_name || profile.institution_name || 'New User';
+  const avatarLetter = (displayName)[0]?.toUpperCase();
+
   return (
     <div className="animate-fade-in">
-      {/* Header */}
-      <div className="bg-gradient-to-b from-primary-600 to-primary-700 px-5 pt-10 pb-8 text-white">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-lg font-bold">My Profile</h1>
-          <button onClick={async () => { await signOut(); navigate('/auth'); }} className="flex items-center gap-1.5 text-sm text-white/80 hover:text-white">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" strokeLinecap="round" strokeLinejoin="round" /></svg>
-            Sign Out
-          </button>
-        </div>
+      <div className="bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 px-5 pt-10 pb-8 text-white relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -translate-y-16 translate-x-16" />
+        <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-12 -translate-x-8" />
 
-        <div className="flex items-center gap-4">
-          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-white/20 text-3xl font-bold backdrop-blur-sm">
-            {(profile.full_name || profile.institution_name || profile.email)[0]?.toUpperCase()}
+        <div className="relative">
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-lg font-bold">My Profile</h1>
+            <button onClick={async () => { await signOut(); navigate('/auth'); }} className="flex items-center gap-1.5 text-sm text-white/80 hover:text-white transition-colors">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" strokeLinecap="round" strokeLinejoin="round" /></svg>
+              Sign Out
+            </button>
           </div>
-          <div>
-            <h2 className="text-xl font-bold">{profile.full_name || profile.institution_name || 'New User'}</h2>
-            <p className="text-sm text-white/70">{profile.email}</p>
-            <span className="mt-1 inline-flex items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-0.5 text-xs font-medium">
-              <span className="text-white"><SectorIcon type={profile.role} size={14} /></span>
-              {roleLabel[profile.role]}
-            </span>
-          </div>
-        </div>
 
-        {/* Subscription badge */}
-        {profile.subscription_active ? (
-          <div className="mt-5 flex items-center gap-2 rounded-xl bg-white/15 px-3 py-2 text-sm backdrop-blur-sm">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fcd34d" strokeWidth={2}><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z" strokeLinejoin="round" /></svg>
-            <span className="font-medium">Premium {profile.subscription_plan} plan</span>
-            {profile.subscription_end_date && (
-              <span className="text-white/60 text-xs">until {new Date(profile.subscription_end_date).toLocaleDateString()}</span>
+          <div className="flex items-center gap-4">
+            {profile.profile_picture ? (
+              <img src={profile.profile_picture} alt={displayName} className="h-20 w-20 rounded-full object-cover ring-4 ring-white/20" />
+            ) : (
+              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-white/20 text-3xl font-bold backdrop-blur-sm ring-4 ring-white/10">
+                {avatarLetter}
+              </div>
             )}
+            <div>
+              <h2 className="text-xl font-bold">{displayName}</h2>
+              <p className="text-sm text-white/70">{profile.email}</p>
+              <span className="mt-1.5 inline-flex items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-0.5 text-xs font-medium backdrop-blur-sm">
+                <span className="text-white"><SectorIcon type={profile.role} size={14} /></span>
+                {roleLabel[profile.role]}
+              </span>
+            </div>
           </div>
-        ) : (
-          <button onClick={() => navigate('/subscription')} className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-accent-500 px-3 py-2.5 text-sm font-semibold text-white hover:bg-accent-600 transition-colors">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z" strokeLinejoin="round" /></svg>
-            Upgrade to Premium
-          </button>
-        )}
+
+          {profile.subscription_active ? (
+            <div className="mt-5 flex items-center gap-2 rounded-xl bg-white/15 px-3 py-2.5 text-sm backdrop-blur-sm">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fcd34d" strokeWidth={2}><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z" strokeLinejoin="round" /></svg>
+              <span className="font-medium">Premium {profile.subscription_plan} plan</span>
+              {profile.subscription_end_date && (
+                <span className="text-white/60 text-xs">until {new Date(profile.subscription_end_date).toLocaleDateString()}</span>
+              )}
+            </div>
+          ) : (
+            <button onClick={() => navigate('/subscription')} className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-accent-500 px-3 py-2.5 text-sm font-semibold text-white hover:bg-accent-600 transition-colors shadow-md shadow-accent-500/20">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z" strokeLinejoin="round" /></svg>
+              Upgrade to Premium
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* Profile fields */}
       <div className="px-5 py-5">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-semibold text-gray-900">{teacher ? 'Professional Info' : 'Institution Info'}</h3>
           {!editing ? (
             <button onClick={() => setEditing(true)} className="text-sm font-medium text-primary-600 hover:underline">Edit</button>
           ) : (
-            <div className="flex gap-2">
-              <button onClick={() => { setEditing(false); setError(null); }} className="text-sm font-medium text-gray-400">Cancel</button>
-              <button onClick={handleSave} disabled={saving} className="text-sm font-semibold text-primary-600">
+            <div className="flex gap-3">
+              <button onClick={() => { setEditing(false); setError(null); }} className="text-sm font-medium text-gray-400 hover:text-gray-600 transition-colors">Cancel</button>
+              <button onClick={handleSave} disabled={saving} className="text-sm font-semibold text-primary-600 hover:text-primary-700 transition-colors">
                 {saving ? 'Saving...' : 'Save'}
               </button>
             </div>
           )}
         </div>
 
-        {error && <div className="mb-3 rounded-lg bg-error-50 border border-error-100 px-4 py-2.5 text-sm text-error-700">{error}</div>}
+        {error && <div className="mb-3 rounded-lg bg-error-50 border border-error-100 px-4 py-2.5 text-sm text-error-700 animate-fade-in">{error}</div>}
 
         {editing ? (
           <EditForm form={form} setForm={setForm} teacher={teacher} />
@@ -179,11 +188,11 @@ function ViewInfo({ profile, teacher }: { profile: Profile; teacher: boolean }) 
       ];
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-1">
       {fields.map((f) => (
-        <div key={f.label} className="flex items-center justify-between border-b border-gray-50 py-2.5">
+        <div key={f.label} className="flex items-center justify-between border-b border-gray-50 py-3">
           <span className="text-sm text-gray-400">{f.label}</span>
-          <span className="text-sm font-medium text-gray-900 text-right">{f.value || 'Not set'}</span>
+          <span className={`text-sm font-medium text-right ${f.value ? 'text-gray-900' : 'text-gray-300'}`}>{f.value || 'Not set'}</span>
         </div>
       ))}
     </div>

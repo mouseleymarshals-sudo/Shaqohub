@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { supabase, Job, Application } from '../lib/supabase';
+import { supabase, Job } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
-import { Spinner, EmptyState } from '../components/Feedback';
+import { EmptyState, SkeletonDetail } from '../components/Feedback';
 import { SectorIcon, InfoIcon, type InfoIconName } from '../components/Icons';
 
 const isTeacher = (role: string | null) => role === 'school_teacher' || role === 'university_lecturer';
@@ -36,7 +36,6 @@ export function JobDetailPage() {
       setLoading(false);
     })();
 
-    // Check if already applied
     if (profile && isTeacher(profile.role)) {
       (async () => {
         const { data } = await supabase
@@ -68,7 +67,15 @@ export function JobDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex justify-center py-20"><Spinner size={28} /></div>
+      <div>
+        <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-gray-100 px-5 py-3">
+          <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-sm font-medium text-gray-600">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M15 18l-6-6 6-6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+            Back
+          </button>
+        </div>
+        <SkeletonDetail />
+      </div>
     );
   }
 
@@ -87,18 +94,16 @@ export function JobDetailPage() {
 
   return (
     <div className="animate-fade-in">
-      {/* Back button */}
       <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-gray-100 px-5 py-3">
-        <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-sm font-medium text-gray-600">
+        <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M15 18l-6-6 6-6" strokeLinecap="round" strokeLinejoin="round" /></svg>
           Back
         </button>
       </div>
 
       <div className="px-5 py-5">
-        {/* Header card */}
         <div className="flex items-start gap-4 mb-5">
-          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-primary-50 text-primary-600">
+          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-primary-50 text-primary-600 ring-1 ring-primary-100">
             <SectorIcon type={job.institution_type} size={32} />
           </div>
           <div className="flex-1">
@@ -111,7 +116,6 @@ export function JobDetailPage() {
           </div>
         </div>
 
-        {/* Quick info grid */}
         <div className="grid grid-cols-2 gap-3 mb-5">
           {job.location_city && (
             <InfoCard icon="location" label="Location" value={`${job.location_city}${job.location_district ? ', ' + job.location_district : ''}`} />
@@ -127,7 +131,6 @@ export function JobDetailPage() {
           )}
         </div>
 
-        {/* Subjects */}
         {job.subjects?.length > 0 && (
           <div className="mb-5">
             <h2 className="text-sm font-semibold text-gray-900 mb-2">Subjects</h2>
@@ -139,7 +142,6 @@ export function JobDetailPage() {
           </div>
         )}
 
-        {/* Description */}
         {job.description && (
           <div className="mb-5">
             <h2 className="text-sm font-semibold text-gray-900 mb-2">Description</h2>
@@ -147,7 +149,6 @@ export function JobDetailPage() {
           </div>
         )}
 
-        {/* Requirements */}
         {job.requirements?.length > 0 && (
           <div className="mb-5">
             <h2 className="text-sm font-semibold text-gray-900 mb-2">Requirements</h2>
@@ -162,17 +163,21 @@ export function JobDetailPage() {
           </div>
         )}
 
-        {/* Apply button */}
         {teacher && !isOwner && (
           <div className="sticky bottom-24 -mx-5 px-5 py-3 bg-gradient-to-t from-white via-white to-transparent">
             {applied ? (
-              <div className="btn w-full bg-success-500 text-white cursor-default">
+              <div className="btn w-full bg-success-500 text-white cursor-default animate-bounce-in">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth={2.5}><path d="M5 12l5 5L20 7" strokeLinecap="round" strokeLinejoin="round" /></svg>
                 Application Submitted
               </div>
             ) : (
               <button onClick={handleApply} disabled={applying} className="btn-primary w-full">
-                {applying ? <Spinner size={18} /> : 'Apply Now'}
+                {applying ? (
+                  <>
+                    <div className="h-[18px] w-[18px] animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                    Applying...
+                  </>
+                ) : 'Apply Now'}
               </button>
             )}
             {error && <p className="mt-2 text-center text-sm text-error-600">{error}</p>}
@@ -193,7 +198,7 @@ export function JobDetailPage() {
 
 function InfoCard({ icon, label, value }: { icon: InfoIconName; label: string; value: string }) {
   return (
-    <div className="rounded-xl bg-gray-50 p-3">
+    <div className="rounded-xl bg-gray-50 p-3 transition-colors hover:bg-gray-100">
       <div className="flex items-center gap-1.5 text-xs text-gray-400 font-medium mb-1">
         <InfoIcon name={icon} size={14} /> {label}
       </div>

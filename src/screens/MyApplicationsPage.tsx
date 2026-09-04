@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase, Application } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
-import { Spinner, EmptyState } from '../components/Feedback';
+import { EmptyState, SkeletonList } from '../components/Feedback';
+import { SectorIcon, LocationIcon } from '../components/Icons';
 
 export function MyApplicationsPage() {
   const { profile } = useAuth();
@@ -35,7 +36,15 @@ export function MyApplicationsPage() {
   }, [profile]);
 
   if (loading) {
-    return <div className="flex justify-center py-20"><Spinner size={28} /></div>;
+    return (
+      <div>
+        <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-gray-100 px-5 py-4">
+          <h1 className="text-lg font-bold text-gray-900">My Applications</h1>
+          <p className="text-xs text-gray-500">Track the status of your job applications</p>
+        </div>
+        <div className="px-5 py-4"><SkeletonList count={3} /></div>
+      </div>
+    );
   }
 
   return (
@@ -54,21 +63,34 @@ export function MyApplicationsPage() {
           />
         ) : (
           <div className="space-y-3">
-            {apps.map((app) => {
+            {apps.map((app, idx) => {
               const job = app.jobs as unknown as { id: string; title: string; institution_type: string; location_city: string };
               const institution = (app.profiles as unknown as { institution_name: string }) || { institution_name: 'Unknown' };
               return (
                 <button
                   key={app.id}
                   onClick={() => navigate(`/jobs/${job?.id}`)}
-                  className="card w-full text-left hover:shadow-md transition-all active:scale-[0.98] animate-fade-in"
+                  className="card-hover w-full text-left active:scale-[0.98] animate-fade-in"
+                  style={{ animationDelay: `${idx * 50}ms` }}
                 >
                   <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-gray-900 truncate">{job?.title || 'Unknown position'}</h3>
-                      <p className="text-sm text-gray-500 truncate">{institution.institution_name}</p>
-                      {job?.location_city && <p className="text-xs text-gray-400 mt-0.5">{job.location_city}</p>}
-                      <p className="text-xs text-gray-400 mt-1">Applied on {new Date(app.applied_at).toLocaleDateString()}</p>
+                    <div className="flex items-start gap-3 flex-1 min-w-0">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary-50 text-primary-600">
+                        <SectorIcon type={job?.institution_type || 'school'} size={20} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-gray-900 truncate">{job?.title || 'Unknown position'}</h3>
+                        <p className="text-sm text-gray-500 truncate">{institution.institution_name}</p>
+                        <div className="mt-1 flex items-center gap-3 text-xs text-gray-400">
+                          {job?.location_city && (
+                            <span className="flex items-center gap-1">
+                              <LocationIcon size={12} />
+                              {job.location_city}
+                            </span>
+                          )}
+                          <span>Applied {new Date(app.applied_at).toLocaleDateString()}</span>
+                        </div>
+                      </div>
                     </div>
                     <StatusBadge status={app.status} />
                   </div>

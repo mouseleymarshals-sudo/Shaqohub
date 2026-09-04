@@ -3,10 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { supabase, Job } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { Logo } from '../components/Logo';
-import { Spinner, EmptyState } from '../components/Feedback';
+import { EmptyState, SkeletonList } from '../components/Feedback';
 import { SectorIcon, LocationIcon, SalaryIcon } from '../components/Icons';
-
-const isTeacher = (role: string | null) => role === 'school_teacher' || role === 'university_lecturer';
 
 export function JobsPage() {
   const { profile } = useAuth();
@@ -56,21 +54,21 @@ export function JobsPage() {
     );
   });
 
+  const avatar = profile?.full_name?.[0]?.toUpperCase() || profile?.institution_name?.[0]?.toUpperCase() || (profile?.email ? profile.email[0].toUpperCase() : '?');
+
   return (
     <div>
-      {/* Header */}
       <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-gray-100 px-5 pt-6 pb-3">
         <div className="flex items-center justify-between mb-4">
           <Logo size="sm" />
           <button
             onClick={() => navigate('/profile')}
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-sm font-semibold text-gray-600"
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-50 text-sm font-semibold text-primary-700 ring-1 ring-primary-100 transition-colors hover:bg-primary-100"
           >
-            {profile?.full_name?.[0]?.toUpperCase() || profile?.institution_name?.[0]?.toUpperCase() || profile?.email[0].toUpperCase()}
+            {avatar}
           </button>
         </div>
 
-        {/* Search bar */}
         <div className="flex gap-2">
           <div className="relative flex-1">
             <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
@@ -87,8 +85,8 @@ export function JobsPage() {
           </div>
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className={`flex h-[46px] w-[46px] items-center justify-center rounded-xl border transition-colors ${
-              showFilters || filterCity || filterType ? 'border-primary-500 bg-primary-50 text-primary-600' : 'border-gray-200 bg-white text-gray-500'
+            className={`flex h-[46px] w-[46px] items-center justify-center rounded-xl border transition-all duration-200 ${
+              showFilters || filterCity || filterType ? 'border-primary-500 bg-primary-50 text-primary-600' : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'
             }`}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
@@ -97,7 +95,6 @@ export function JobsPage() {
           </button>
         </div>
 
-        {/* Filters */}
         {showFilters && (
           <div className="mt-3 flex gap-2 animate-fade-in">
             <select
@@ -125,10 +122,9 @@ export function JobsPage() {
         )}
       </div>
 
-      {/* Content */}
       <div className="px-5 py-4">
         {loading ? (
-          <div className="flex justify-center py-20"><Spinner size={28} /></div>
+          <SkeletonList count={4} />
         ) : filtered.length === 0 ? (
           <EmptyState
             icon={<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}><path d="M3 7l9-4 9 4M5 10v8a2 2 0 002 2h10a2 2 0 002-2v-8" strokeLinecap="round" strokeLinejoin="round" /></svg>}
@@ -138,11 +134,12 @@ export function JobsPage() {
         ) : (
           <div className="space-y-3">
             <p className="text-xs text-gray-400 font-medium">{filtered.length} {filtered.length === 1 ? 'job' : 'jobs'} available</p>
-            {filtered.map((job) => (
+            {filtered.map((job, idx) => (
               <button
                 key={job.id}
                 onClick={() => navigate(`/jobs/${job.id}`)}
-                className="card w-full text-left hover:shadow-md hover:border-primary-200 transition-all active:scale-[0.98] animate-fade-in"
+                className="card-hover w-full text-left active:scale-[0.98] animate-fade-in"
+                style={{ animationDelay: `${idx * 50}ms` }}
               >
                 <div className="flex items-start gap-3">
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary-50 text-primary-600">

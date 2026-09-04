@@ -46,7 +46,6 @@ export function SubscriptionPage() {
     setProcessing(true);
     setError(null);
 
-    // Simulated Dahabshil payment flow
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
     const endDate = new Date();
@@ -70,44 +69,43 @@ export function SubscriptionPage() {
 
   return (
     <div className="animate-fade-in">
-      {/* Header */}
       <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-gray-100 px-5 py-3">
-        <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-sm font-medium text-gray-600">
+        <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M15 18l-6-6 6-6" strokeLinecap="round" strokeLinejoin="round" /></svg>
           Back
         </button>
       </div>
 
       {success ? (
-        <div className="flex flex-col items-center justify-center py-20 px-6 text-center animate-scale-in">
+        <div className="flex flex-col items-center justify-center py-20 px-6 text-center animate-bounce-in">
           <div className="flex h-20 w-20 items-center justify-center rounded-full bg-success-100 mb-4">
             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth={2.5}><path d="M5 12l5 5L20 7" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </div>
           <h2 className="text-xl font-bold text-gray-900">Payment Successful!</h2>
           <p className="mt-2 text-sm text-gray-500">Your subscription is now active. Redirecting to your profile...</p>
-          <Spinner size={20} />
+          <div className="mt-4"><Spinner size={20} /></div>
         </div>
       ) : (
         <div className="px-5 py-6">
           <div className="text-center mb-8">
-            <div className="mb-3 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-accent-50 text-accent-500">
+            <div className="mb-3 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-accent-50 text-accent-500 ring-1 ring-accent-100">
               <StarIcon size={28} />
             </div>
             <h1 className="text-2xl font-bold text-gray-900">Upgrade to Premium</h1>
-            <p className="mt-2 text-sm text-gray-500 max-w-xs mx-auto">
+            <p className="mt-2 text-sm text-gray-500 max-w-xs mx-auto leading-relaxed">
               Unlock powerful features to find the best teachers faster. Pay securely via Dahabshil.
             </p>
           </div>
 
-          {/* Plans */}
           <div className="space-y-3">
-            {plans.map((plan) => (
+            {plans.map((plan, idx) => (
               <button
                 key={plan.id}
                 onClick={() => setSelected(plan.id)}
-                className={`w-full rounded-2xl border-2 p-5 text-left transition-all ${
-                  selected === plan.id ? plan.color : 'border-gray-200 hover:border-gray-300'
+                className={`w-full rounded-2xl border-2 p-5 text-left transition-all duration-200 animate-fade-in ${
+                  selected === plan.id ? plan.color + ' shadow-md' : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
                 } ${plan.popular && selected !== plan.id ? 'border-primary-200' : ''}`}
+                style={{ animationDelay: `${idx * 50}ms` }}
               >
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
@@ -134,10 +132,9 @@ export function SubscriptionPage() {
           </div>
 
           {error && (
-            <div className="mt-4 rounded-lg bg-error-50 border border-error-100 px-4 py-3 text-sm text-error-700">{error}</div>
+            <div className="mt-4 rounded-lg bg-error-50 border border-error-100 px-4 py-3 text-sm text-error-700 animate-fade-in">{error}</div>
           )}
 
-          {/* Payment button */}
           <button
             onClick={handleSubscribe}
             disabled={!selected || processing}

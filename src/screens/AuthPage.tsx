@@ -5,10 +5,10 @@ import { Spinner } from '../components/Feedback';
 import type { UserRole } from '../lib/supabase';
 
 const roleOptions: { value: UserRole; label: string; desc: string; image: string }[] = [
-  { value: 'school_teacher', label: 'School Teacher', desc: 'Primary & secondary educator', image: 'https://images.pexels.com/photos/5212342/pexels-photo-5212342.jpeg?auto=compress&cs=tinysrgb&h=400&w=600' },
-  { value: 'university_lecturer', label: 'University Lecturer', desc: 'Higher education staff', image: 'https://images.pexels.com/photos/8197553/pexels-photo-8197553.jpeg?auto=compress&cs=tinysrgb&h=400&w=600' },
-  { value: 'school', label: 'School', desc: 'Primary or secondary school', image: 'https://images.pexels.com/photos/8926848/pexels-photo-8926848.jpeg?auto=compress&cs=tinysrgb&h=400&w=600' },
-  { value: 'university', label: 'University', desc: 'Higher education institution', image: 'https://images.pexels.com/photos/14495769/pexels-photo-14495769.jpeg?auto=compress&cs=tinysrgb&h=400&w=600' },
+  { value: 'school_teacher', label: 'School Teacher', desc: 'Primary & secondary educator', image: 'https://images.pexels.com/photos/35610368/pexels-photo-35610368.jpeg?auto=compress&cs=tinysrgb&h=400&w=600' },
+  { value: 'university_lecturer', label: 'University Lecturer', desc: 'Higher education staff', image: 'https://images.pexels.com/photos/7092613/pexels-photo-7092613.jpeg?auto=compress&cs=tinysrgb&h=400&w=600' },
+  { value: 'school', label: 'School', desc: 'Primary or secondary school', image: 'https://images.pexels.com/photos/35250413/pexels-photo-35250413.jpeg?auto=compress&cs=tinysrgb&h=400&w=600' },
+  { value: 'university', label: 'University', desc: 'Higher education institution', image: 'https://images.pexels.com/photos/16086326/pexels-photo-16086326.jpeg?auto=compress&cs=tinysrgb&h=400&w=600' },
 ];
 
 export function AuthPage() {

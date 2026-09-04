@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { Spinner } from '../components/Feedback';
+import { SectorIcon } from '../components/Icons';
 import type { Profile, UserRole } from '../lib/supabase';
 
 const isTeacher = (role: string | null) => role === 'school_teacher' || role === 'university_lecturer';
@@ -103,8 +104,9 @@ export function ProfilePage() {
           <div>
             <h2 className="text-xl font-bold">{profile.full_name || profile.institution_name || 'New User'}</h2>
             <p className="text-sm text-white/70">{profile.email}</p>
-            <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-white/15 px-2.5 py-0.5 text-xs font-medium">
-              {profile.role === 'school_teacher' ? '📚' : profile.role === 'university_lecturer' ? '🎓' : profile.role === 'school' ? '🏫' : '🏛️'} {roleLabel[profile.role]}
+            <span className="mt-1 inline-flex items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-0.5 text-xs font-medium">
+              <span className="text-white"><SectorIcon type={profile.role} size={14} /></span>
+              {roleLabel[profile.role]}
             </span>
           </div>
         </div>

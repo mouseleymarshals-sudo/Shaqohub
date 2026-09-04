@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { supabase, Job, Application } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { Spinner, EmptyState } from '../components/Feedback';
+import { SectorIcon, InfoIcon, type InfoIconName } from '../components/Icons';
 
 const isTeacher = (role: string | null) => role === 'school_teacher' || role === 'university_lecturer';
 
@@ -97,8 +98,8 @@ export function JobDetailPage() {
       <div className="px-5 py-5">
         {/* Header card */}
         <div className="flex items-start gap-4 mb-5">
-          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-primary-50 text-3xl">
-            {job.institution_type === 'university' ? '🎓' : '🏫'}
+          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-primary-50 text-primary-600">
+            <SectorIcon type={job.institution_type} size={32} />
           </div>
           <div className="flex-1">
             <h1 className="text-xl font-bold text-gray-900">{job.title}</h1>
@@ -113,16 +114,16 @@ export function JobDetailPage() {
         {/* Quick info grid */}
         <div className="grid grid-cols-2 gap-3 mb-5">
           {job.location_city && (
-            <InfoCard icon="📍" label="Location" value={`${job.location_city}${job.location_district ? ', ' + job.location_district : ''}`} />
+            <InfoCard icon="location" label="Location" value={`${job.location_city}${job.location_district ? ', ' + job.location_district : ''}`} />
           )}
           {job.salary_amount && (
-            <InfoCard icon="💰" label="Salary" value={`${Number(job.salary_amount).toLocaleString()} ${job.salary_currency || ''}/${job.salary_period || ''}`} />
+            <InfoCard icon="salary" label="Salary" value={`${Number(job.salary_amount).toLocaleString()} ${job.salary_currency || ''}/${job.salary_period || ''}`} />
           )}
           {job.application_deadline && (
-            <InfoCard icon="📅" label="Deadline" value={new Date(job.application_deadline).toLocaleDateString()} />
+            <InfoCard icon="calendar" label="Deadline" value={new Date(job.application_deadline).toLocaleDateString()} />
           )}
           {job.phone_number && (
-            <InfoCard icon="📞" label="Contact" value={job.phone_number} />
+            <InfoCard icon="phone" label="Contact" value={job.phone_number} />
           )}
         </div>
 
@@ -190,11 +191,11 @@ export function JobDetailPage() {
   );
 }
 
-function InfoCard({ icon, label, value }: { icon: string; label: string; value: string }) {
+function InfoCard({ icon, label, value }: { icon: InfoIconName; label: string; value: string }) {
   return (
     <div className="rounded-xl bg-gray-50 p-3">
       <div className="flex items-center gap-1.5 text-xs text-gray-400 font-medium mb-1">
-        <span>{icon}</span> {label}
+        <InfoIcon name={icon} size={14} /> {label}
       </div>
       <p className="text-sm font-semibold text-gray-900">{value}</p>
     </div>

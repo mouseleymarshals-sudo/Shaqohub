@@ -4,6 +4,7 @@ import { supabase, Job } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { Logo } from '../components/Logo';
 import { Spinner, EmptyState } from '../components/Feedback';
+import { SectorIcon, LocationIcon, SalaryIcon } from '../components/Icons';
 
 const isTeacher = (role: string | null) => role === 'school_teacher' || role === 'university_lecturer';
 
@@ -145,7 +146,7 @@ export function JobsPage() {
               >
                 <div className="flex items-start gap-3">
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary-50 text-primary-600">
-                    {job.institution_type === 'university' ? '🎓' : '🏫'}
+                    <SectorIcon type={job.institution_type} size={24} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="font-semibold text-gray-900 truncate">{job.title}</h3>
@@ -161,13 +162,13 @@ export function JobsPage() {
                     <div className="mt-2 flex items-center gap-3 text-xs text-gray-400">
                       {job.location_city && (
                         <span className="flex items-center gap-1">
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M12 21s-7-6.5-7-12a7 7 0 0114 0c0 5.5-7 12-7 12z" /><circle cx="12" cy="9" r="2.5" /></svg>
+                          <LocationIcon size={12} />
                           {job.location_city}
                         </span>
                       )}
                       {job.salary_amount && (
                         <span className="flex items-center gap-1">
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><circle cx="12" cy="12" r="9" /><path d="M12 7v10M9 10h4.5a2 2 0 010 4H9" strokeLinecap="round" /></svg>
+                          <SalaryIcon size={12} />
                           {job.salary_amount.toLocaleString()} {job.salary_currency}
                         </span>
                       )}

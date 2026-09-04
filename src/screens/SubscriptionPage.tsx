@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { Spinner } from '../components/Feedback';
+import { StarIcon } from '../components/Icons';
 
 const plans = [
   {
@@ -89,7 +90,9 @@ export function SubscriptionPage() {
       ) : (
         <div className="px-5 py-6">
           <div className="text-center mb-8">
-            <div className="mb-3 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-accent-50 text-3xl">⭐</div>
+            <div className="mb-3 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-accent-50 text-accent-500">
+              <StarIcon size={28} />
+            </div>
             <h1 className="text-2xl font-bold text-gray-900">Upgrade to Premium</h1>
             <p className="mt-2 text-sm text-gray-500 max-w-xs mx-auto">
               Unlock powerful features to find the best teachers faster. Pay securely via Dahabshil.

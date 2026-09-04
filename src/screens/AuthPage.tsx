@@ -2,13 +2,14 @@ import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Logo } from '../components/Logo';
 import { Spinner } from '../components/Feedback';
+import { SchoolTeacherIcon, LecturerIcon, SchoolIcon, UniversityIcon } from '../components/Icons';
 import type { UserRole } from '../lib/supabase';
 
-const roleOptions: { value: UserRole; label: string; desc: string; icon: string }[] = [
-  { value: 'school_teacher', label: 'School Teacher', desc: 'Primary & secondary educator', icon: '📚' },
-  { value: 'university_lecturer', label: 'University Lecturer', desc: 'Higher education staff', icon: '🎓' },
-  { value: 'school', label: 'School', desc: 'Primary or secondary school', icon: '🏫' },
-  { value: 'university', label: 'University', desc: 'Higher education institution', icon: '🏛️' },
+const roleOptions: { value: UserRole; label: string; desc: string; icon: React.FC<{ size?: number; className?: string }> }[] = [
+  { value: 'school_teacher', label: 'School Teacher', desc: 'Primary & secondary educator', icon: SchoolTeacherIcon },
+  { value: 'university_lecturer', label: 'University Lecturer', desc: 'Higher education staff', icon: LecturerIcon },
+  { value: 'school', label: 'School', desc: 'Primary or secondary school', icon: SchoolIcon },
+  { value: 'university', label: 'University', desc: 'Higher education institution', icon: UniversityIcon },
 ];
 
 export function AuthPage() {
@@ -113,7 +114,7 @@ export function AuthPage() {
                         : 'border-gray-200 bg-white hover:border-gray-300'
                     }`}
                   >
-                    <span className="text-xl">{opt.icon}</span>
+                    <span className="text-primary-600"><opt.icon size={26} /></span>
                     <span className="text-sm font-semibold text-gray-900">{opt.label}</span>
                     <span className="text-[11px] text-gray-500">{opt.desc}</span>
                   </button>

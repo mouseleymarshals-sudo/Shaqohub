@@ -15,6 +15,8 @@ export function JobDetailPage() {
   const [loading, setLoading] = useState(true);
   const [applying, setApplying] = useState(false);
   const [applied, setApplied] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [withdrawing, setWithdrawing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -45,6 +47,14 @@ export function JobDetailPage() {
           .eq('applicant_id', profile.id)
           .maybeSingle();
         if (data) setApplied(true);
+
+        const { data: savedData } = await supabase
+          .from('saved_jobs')
+          .select('id')
+          .eq('job_id', id)
+          .eq('user_id', profile.id)
+          .maybeSingle();
+        if (savedData) setSaved(true);
       })();
     }
   }, [id, profile]);
@@ -63,6 +73,34 @@ export function JobDetailPage() {
       setApplied(true);
     }
     setApplying(false);
+  };
+
+  const handleWithdraw = async () => {
+    if (!profile || !id) return;
+    setWithdrawing(true);
+    const { error } = await supabase
+      .from('applications')
+      .delete()
+      .eq('job_id', id)
+      .eq('applicant_id', profile.id);
+    if (!error) {
+      setApplied(false);
+    }
+    setWithdrawing(false);
+  };
+
+  const handleSave = async () => {
+    if (!profile || !id) return;
+    if (saved) {
+      await supabase.from('saved_jobs').delete().eq('user_id', profile.id).eq('job_id', id);
+      setSaved(false);
+    } else {
+      await supabase.from('saved_jobs').insert({
+        user_id: profile.id,
+        job_id: id,
+      });
+      setSaved(true);
+    }
   };
 
   if (loading) {
@@ -94,11 +132,21 @@ export function JobDetailPage() {
 
   return (
     <div className="animate-fade-in">
-      <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-gray-100 px-5 py-3">
+      <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-gray-100 px-5 py-3 flex items-center justify-between">
         <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M15 18l-6-6 6-6" strokeLinecap="round" strokeLinejoin="round" /></svg>
           Back
         </button>
+        {teacher && !isOwner && (
+          <button
+            onClick={handleSave}
+            className={`flex h-9 w-9 items-center justify-center rounded-full transition-all duration-200 ${
+              saved ? 'bg-accent-100 text-accent-600' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
+            }`}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill={saved ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={2}><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z" strokeLinecap="round" strokeLinejoin="round" /></svg>
+          </button>
+        )}
       </div>
 
       <div className="px-5 py-5">
@@ -112,6 +160,7 @@ export function JobDetailPage() {
             <div className="mt-1.5 flex items-center gap-2">
               <span className="badge bg-primary-50 text-primary-700 capitalize">{job.institution_type}</span>
               {job.teacher_type && <span className="badge bg-gray-100 text-gray-600">{job.teacher_type}</span>}
+              {!job.is_active && <span className="badge bg-gray-100 text-gray-500">Closed</span>}
             </div>
           </div>
         </div>
@@ -166,11 +215,25 @@ export function JobDetailPage() {
         {teacher && !isOwner && (
           <div className="sticky bottom-24 -mx-5 px-5 py-3 bg-gradient-to-t from-white via-white to-transparent">
             {applied ? (
-              <div className="btn w-full bg-success-500 text-white cursor-default animate-bounce-in">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth={2.5}><path d="M5 12l5 5L20 7" strokeLinecap="round" strokeLinejoin="round" /></svg>
-                Application Submitted
+              <div className="flex gap-2">
+                <div className="btn flex-1 bg-success-500 text-white cursor-default animate-bounce-in">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth={2.5}><path d="M5 12l5 5L20 7" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                  Applied
+                </div>
+                <button
+                  onClick={handleWithdraw}
+                  disabled={withdrawing}
+                  className="btn-secondary !px-4"
+                  title="Withdraw application"
+                >
+                  {withdrawing ? (
+                    <div className="h-[18px] w-[18px] animate-spin rounded-full border-2 border-gray-200 border-t-gray-600" />
+                  ) : (
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                  )}
+                </button>
               </div>
-            ) : (
+            ) : job.is_active ? (
               <button onClick={handleApply} disabled={applying} className="btn-primary w-full">
                 {applying ? (
                   <>
@@ -179,6 +242,8 @@ export function JobDetailPage() {
                   </>
                 ) : 'Apply Now'}
               </button>
+            ) : (
+              <div className="btn w-full bg-gray-100 text-gray-400 cursor-default">This job is no longer accepting applications</div>
             )}
             {error && <p className="mt-2 text-center text-sm text-error-600">{error}</p>}
           </div>

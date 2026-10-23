@@ -45,13 +45,24 @@ export function MyJobsPage() {
     fetchJobs();
   }, [profile]);
 
-  const updateAppStatus = async (appId: string, status: 'accepted' | 'rejected') => {
+  const updateAppStatus = async (appId: string, status: 'accepted' | 'rejected', jobTitle: string, applicantId: string) => {
     setUpdatingId(appId);
     const { error } = await supabase
       .from('applications')
       .update({ status })
       .eq('id', appId);
     if (!error) {
+      const notifType = status === 'accepted' ? 'application_accepted' : 'application_rejected';
+      const notifTitle = status === 'accepted' ? 'Application Accepted' : 'Application Update';
+      const notifBody = status === 'accepted'
+        ? `Great news! Your application for "${jobTitle}" has been accepted.`
+        : `Your application for "${jobTitle}" was not selected this time.`;
+      await supabase.from('notifications').insert({
+        user_id: applicantId,
+        type: notifType,
+        title: notifTitle,
+        body: notifBody,
+      });
       await fetchJobs();
     }
     setUpdatingId(null);
@@ -148,14 +159,14 @@ export function MyJobsPage() {
                                 {app.status === 'pending' && (
                                   <>
                                     <button
-                                      onClick={() => updateAppStatus(app.id, 'accepted')}
+                                      onClick={() => updateAppStatus(app.id, 'accepted', job.title, app.applicant_id)}
                                       disabled={updatingId === app.id}
                                       className="flex-1 rounded-lg bg-success-500 py-2 text-xs font-semibold text-white hover:bg-success-600 disabled:opacity-50 transition-colors"
                                     >
                                       Accept
                                     </button>
                                     <button
-                                      onClick={() => updateAppStatus(app.id, 'rejected')}
+                                      onClick={() => updateAppStatus(app.id, 'rejected', job.title, app.applicant_id)}
                                       disabled={updatingId === app.id}
                                       className="flex-1 rounded-lg bg-gray-200 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-300 disabled:opacity-50 transition-colors"
                                     >
@@ -163,8 +174,8 @@ export function MyJobsPage() {
                                     </button>
                                   </>
                                 )}
-                                {applicant?.phone_number && app.status !== 'pending' && (
-                                  <a href={`tel:${applicant.phone_number}`} className="text-xs font-medium text-primary-600">
+                                {applicant?.phone_number && (
+                                  <a href={`tel:${applicant.phone_number}`} className="text-xs font-medium text-primary-600 ml-auto">
                                     {applicant.phone_number}
                                   </a>
                                 )}

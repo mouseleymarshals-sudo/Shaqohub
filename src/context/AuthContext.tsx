@@ -2,6 +2,8 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { supabase, Profile, UserRole } from '../lib/supabase';
 import type { Session, User } from '@supabase/supabase-js';
 
+const PENDING_ROLE_KEY = 'teachlink_pending_role';
+
 interface AuthContextValue {
   session: Session | null;
   user: User | null;
@@ -9,6 +11,7 @@ interface AuthContextValue {
   loading: boolean;
   signUp: (email: string, password: string, role: UserRole) => Promise<{ error: string | null }>;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
+  signInWithGoogle: (role?: UserRole) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
@@ -57,7 +60,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(session);
       if (session?.user?.id) {
         (async () => {
-          const p = await fetchProfile(session.user.id);
+          let p = await fetchProfile(session.user.id);
+
+          if (!p) {
+            const pendingRole = localStorage.getItem(PENDING_ROLE_KEY) as UserRole | null;
+            const role = pendingRole || 'school_teacher';
+            if (pendingRole) localStorage.removeItem(PENDING_ROLE_KEY);
+
+            const { error: profileError } = await supabase.from('profiles').insert({
+              id: session.user.id,
+              email: session.user.email || '',
+              role,
+              full_name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || null,
+              profile_picture: session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture || null,
+            });
+
+            if (!profileError) {
+              await supabase.from('notifications').insert({
+                user_id: session.user.id,
+                type: 'welcome',
+                title: 'Welcome to TeachLink!',
+                body: 'Complete your profile to get the best matches and start applying to jobs.',
+              });
+              p = await fetchProfile(session.user.id);
+            }
+          }
+
           setProfile(p);
           setLoading(false);
         })();
@@ -94,6 +122,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: null };
   };
 
+  const signInWithGoogle = async (role?: UserRole) => {
+    if (role) {
+      localStorage.setItem(PENDING_ROLE_KEY, role);
+    }
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin,
+      },
+    });
+    if (error) return { error: error.message };
+    return { error: null };
+  };
+
   const signOut = async () => {
     await supabase.auth.signOut();
     setProfile(null);
@@ -101,7 +143,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ session, user: session?.user ?? null, profile, loading, signUp, signIn, signOut, refreshProfile }}>
+    <AuthContext.Provider value={{ session, user: session?.user ?? null, profile, loading, signUp, signIn, signInWithGoogle, signOut, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );

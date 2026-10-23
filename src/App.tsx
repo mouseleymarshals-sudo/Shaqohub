@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import { FullScreenSpinner } from './components/Feedback';
 import { BottomNav } from './components/BottomNav';
+import { Splash } from './components/Splash';
 import { AuthPage } from './screens/AuthPage';
 import { ProfilePage } from './screens/ProfilePage';
 import { JobsPage } from './screens/JobsPage';
@@ -10,6 +12,11 @@ import { PostJobPage } from './screens/PostJobPage';
 import { MyJobsPage } from './screens/MyJobsPage';
 import { MyApplicationsPage } from './screens/MyApplicationsPage';
 import { SubscriptionPage } from './screens/SubscriptionPage';
+import { DashboardPage } from './screens/DashboardPage';
+import { SavedJobsPage } from './screens/SavedJobsPage';
+import { NotificationsPage } from './screens/NotificationsPage';
+
+const isTeacher = (role: string | null) => role === 'school_teacher' || role === 'university_lecturer';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { session, loading } = useAuth();
@@ -19,9 +26,10 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 
 function PublicRoute({ children }: { children: React.ReactNode }) {
-  const { session, loading } = useAuth();
+  const { session, loading, profile } = useAuth();
   if (loading) return <FullScreenSpinner message="Loading..." />;
-  if (session) return <Navigate to="/jobs" replace />;
+  if (session && profile) return <Navigate to={isTeacher(profile.role) ? '/jobs' : '/dashboard'} replace />;
+  if (session && !profile) return <FullScreenSpinner message="Setting up your account..." />;
   return <>{children}</>;
 }
 
@@ -37,6 +45,12 @@ function AppLayout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
+  const [showSplash, setShowSplash] = useState(true);
+
+  if (showSplash) {
+    return <Splash onDone={() => setShowSplash(false)} />;
+  }
+
   return (
     <Routes>
       <Route path="/auth" element={
@@ -65,6 +79,15 @@ export default function App() {
       } />
       <Route path="/subscription" element={
         <ProtectedRoute><AppLayout><SubscriptionPage /></AppLayout></ProtectedRoute>
+      } />
+      <Route path="/dashboard" element={
+        <ProtectedRoute><AppLayout><DashboardPage /></AppLayout></ProtectedRoute>
+      } />
+      <Route path="/saved" element={
+        <ProtectedRoute><AppLayout><SavedJobsPage /></AppLayout></ProtectedRoute>
+      } />
+      <Route path="/notifications" element={
+        <ProtectedRoute><AppLayout><NotificationsPage /></AppLayout></ProtectedRoute>
       } />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

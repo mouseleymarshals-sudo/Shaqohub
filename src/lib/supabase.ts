@@ -12,6 +12,25 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 
 export type UserRole = 'school_teacher' | 'university_lecturer' | 'school' | 'university';
 
+export interface SavedJob {
+  id: string;
+  user_id: string;
+  job_id: string;
+  saved_at: string;
+}
+
+export interface Notification {
+  id: string;
+  user_id: string;
+  type: 'application_accepted' | 'application_rejected' | 'new_applicant' | 'job_deadline' | 'welcome';
+  title: string;
+  body: string;
+  job_id: string | null;
+  application_id: string | null;
+  is_read: boolean;
+  created_at: string;
+}
+
 export interface Profile {
   id: string;
   email: string;

@@ -4,9 +4,9 @@ export function Splash({ onDone }: { onDone: () => void }) {
   const [phase, setPhase] = useState<'enter' | 'hold' | 'exit'>('enter');
 
   useEffect(() => {
-    const t1 = setTimeout(() => setPhase('hold'), 400);
-    const t2 = setTimeout(() => setPhase('exit'), 1600);
-    const t3 = setTimeout(() => onDone(), 2100);
+    const t1 = setTimeout(() => setPhase('hold'), 500);
+    const t2 = setTimeout(() => setPhase('exit'), 5500);
+    const t3 = setTimeout(() => onDone(), 6000);
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, [onDone]);
 

@@ -44,6 +44,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
+    // Check for OAuth redirect callback first
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       if (session?.user?.id) {
@@ -56,18 +57,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     });
 
-    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
       if (session?.user?.id) {
         (async () => {
           let p = await fetchProfile(session.user.id);
 
           if (!p) {
+            // The database trigger should have already created the profile.
+            // But if it hasn't propagated yet, retry after a short delay.
+            await new Promise((resolve) => setTimeout(resolve, 500));
+            p = await fetchProfile(session.user.id);
+          }
+
+          if (!p) {
+            // Still no profile — create one manually as a fallback.
             const pendingRole = localStorage.getItem(PENDING_ROLE_KEY) as UserRole | null;
             const role = pendingRole || 'school_teacher';
             if (pendingRole) localStorage.removeItem(PENDING_ROLE_KEY);
 
-            const { error: profileError } = await supabase.from('profiles').insert({
+            await supabase.from('profiles').insert({
               id: session.user.id,
               email: session.user.email || '',
               role,
@@ -75,14 +84,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               profile_picture: session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture || null,
             });
 
-            if (!profileError) {
-              await supabase.from('notifications').insert({
-                user_id: session.user.id,
-                type: 'welcome',
-                title: 'Welcome to TeachLink!',
-                body: 'Complete your profile to get the best matches and start applying to jobs.',
-              });
-              p = await fetchProfile(session.user.id);
+            await supabase.from('notifications').insert({
+              user_id: session.user.id,
+              type: 'welcome',
+              title: 'Welcome to TeachLink!',
+              body: 'Complete your profile to get the best matches and start applying to jobs.',
+            });
+
+            p = await fetchProfile(session.user.id);
+          } else if (p.role === 'school_teacher') {
+            // Profile exists from trigger with default role — update if user selected a role
+            const pendingRole = localStorage.getItem(PENDING_ROLE_KEY) as UserRole | null;
+            if (pendingRole) {
+              localStorage.removeItem(PENDING_ROLE_KEY);
+              const { error: updateError } = await supabase
+                .from('profiles')
+                .update({ role: pendingRole })
+                .eq('id', session.user.id);
+              if (!updateError) {
+                p = await fetchProfile(session.user.id);
+              }
             }
           }
 
@@ -101,16 +122,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signUp = async (email: string, password: string, role: UserRole) => {
-    const { data, error } = await supabase.auth.signUp({ email, password });
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { role },
+      },
+    });
     if (error) return { error: error.message };
 
+    // The trigger will create the profile automatically, but for email signup
+    // we also create it here to be safe (the trigger handles OAuth users).
     if (data.user) {
-      const { error: profileError } = await supabase.from('profiles').insert({
-        id: data.user.id,
-        email,
-        role,
-      });
-      if (profileError) return { error: profileError.message };
+      // Check if profile already exists (trigger may have created it)
+      const { data: existing } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', data.user.id)
+        .maybeSingle();
+
+      if (!existing) {
+        const { error: profileError } = await supabase.from('profiles').insert({
+          id: data.user.id,
+          email,
+          role,
+        });
+        if (profileError) return { error: profileError.message };
+      }
     }
 
     return { error: null };
@@ -130,9 +168,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       provider: 'google',
       options: {
         redirectTo: window.location.origin,
+        queryParams: role ? { role } : undefined,
       },
     });
-    if (error) return { error: error.message };
+    if (error) {
+      const msg = error.message.toLowerCase();
+      if (msg.includes('provider') || msg.includes('not enabled') || msg.includes('oauth')) {
+        return {
+          error: 'Google sign-in is not yet configured. Please use email/password for now, or enable Google in your Supabase Authentication settings.',
+        };
+      }
+      return { error: error.message };
+    }
     return { error: null };
   };
 

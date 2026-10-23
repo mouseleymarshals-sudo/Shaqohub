@@ -105,7 +105,16 @@ export function AuthPage() {
       setError(error);
       setGoogleLoading(false);
     }
+    // If no error, the browser will redirect to Google — no need to reset loading
   };
+
+  // Detect OAuth redirect: if URL has hash fragments from Supabase, show a transitional state
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash && (hash.includes('access_token') || hash.includes('error'))) {
+      setGoogleLoading(true);
+    }
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-primary-50 via-white to-white flex flex-col">

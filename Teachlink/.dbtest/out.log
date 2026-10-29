@@ -1,0 +1,133 @@
+PASS Super Admin profile exists and is active
+PASS Super Admin has an email identity for password sign-in
+PASS Super Admin auth user is confirmed with a password hash
+PASS Employer can read applicant qualifications
+PASS Employer cannot read applicant full names
+PASS Employer cannot read applicant phone numbers
+PASS Employer cannot read applicant emails
+PASS Institution names are not exposed through profiles
+PASS Legacy job phone number column is inaccessible
+PASS Employer cannot read CV file names
+PASS Employer cannot read cover notes (contact info risk)
+PASS Employer sees anonymous reference codes and file paths
+PASS Teacher sees only approved job posts
+PASS Employer sees its pending job too
+PASS Super Admin sees all job posts
+PASS Teacher cannot edit an institution job
+PASS Job title is unchanged after attempted edit
+PASS Employer cannot directly update application status
+PASS Teacher cannot select themselves
+PASS Employer selection creates a private selected-candidate record
+PASS Repeated selection is idempotent
+PASS Selected application becomes accepted
+PASS Employer cannot read the selected candidates list
+PASS Teacher cannot read the selected candidates list
+PASS Super Admin sees selected applicant contact details
+PASS Super Admin sees job and requesting institution details
+PASS Applicant is notified of selection
+PASS Other teachers cannot read selection notifications
+PASS Selected candidates cannot be edited directly even by the admin
+PASS Employer cannot update negotiations
+PASS Rejection requires a non-empty reason
+PASS Teacher cannot decide on an application
+PASS Teacher sees status and rejection reason
+PASS Rejection notification includes the reason
+PASS A rejected application cannot then be selected
+PASS A selected application cannot then be rejected
+PASS Invalid negotiation status is rejected
+PASS Agreement requires an agreed fee
+PASS Placement is blocked before referral
+PASS Referral is blocked before agreement
+PASS Agreement reached with monthly fee
+PASS Placement is blocked before referral
+PASS Referral records date and contract status
+PASS Placement records timestamp after referral
+PASS Clearing notes works while the fee is preserved
+PASS Invalid contract status is rejected
+PASS Admin pipeline view exposes final negotiation state
+PASS Employer cannot message selected applicants
+PASS Super Admin can send in-app notifications to the selected applicant
+PASS Employer cannot read platform statistics
+PASS Super Admin dashboard statistics are accurate
+PASS Employer reads zero rows from admin accounts view
+PASS Employer reads zero rows from admin applications view
+PASS Super Admin can read full account details
+PASS Super Admin can read cover notes and CV names
+PASS Anonymous logo wall returns logos only
+PASS Logo wall excludes unapproved institutions
+PASS Anonymous users cannot query profiles
+PASS Anonymous users cannot call get_my_profile
+PASS Employer cannot approve institutions
+PASS Only institution accounts can be reviewed
+PASS Super Admin can approve institution registration
+PASS Approved institution logo appears on public wall
+PASS Employer cannot approve job posts
+PASS Invalid job review status is rejected
+PASS Super Admin approval records reviewer and timestamp
+PASS Newly approved job becomes visible to teachers
+PASS Employer is notified of job review outcomes
+PASS New user can switch to an institution role during onboarding
+PASS Applicant cannot change role after applying
+PASS Super Admin cannot use onboarding role switching
+PASS Invalid onboarding role is rejected
+PASS Role switching is limited to the first 24 hours
+PASS Employer cannot create accounts
+PASS Super Admin cannot create unknown roles
+PASS Password length is enforced
+PASS Super Admin can create institution accounts
+PASS Admin-created accounts are approved and verified
+PASS Admin-created accounts have a sign-in identity
+PASS Admin-created accounts are email-confirmed
+PASS Duplicate emails are rejected
+PASS Admin update preserves fields that are not supplied
+PASS Changing to an institution role requires re-approval
+PASS Super Admin can approve the updated account
+PASS Admin account cannot be demoted through the edit RPC
+PASS Super Admin cannot delete their own account
+PASS Admin can delete an account and its auth user
+PASS Other teachers cannot read support threads
+PASS Other teachers cannot post into a support thread
+PASS Employers cannot read a teacher support thread
+PASS Super Admin can read support messages
+PASS Requester can read their support attachment
+PASS Other teachers cannot read a support attachment
+PASS Super Admin can read support attachments
+PASS Direct messaging table is inaccessible
+PASS Conversation table is inaccessible
+PASS Teacher can read their own subscription request
+PASS Other teachers cannot read subscription requests
+PASS Super Admin can read all subscription requests
+PASS Teacher cannot upload into another teacher folder
+PASS Employer can download the CV of an applicant to its job
+PASS Employer can download certificates for its applicant
+PASS Unrelated institution cannot read the CV
+PASS Super Admin can read any CV
+PASS Other teachers cannot read the CV
+PASS get_my_profile returns the caller full profile including contact details
+PASS Teacher can update their own phone number
+PASS Teacher cannot update another profile
+PASS Profile email cannot be self-edited
+PASS Other profile was not modified
+PASS Teacher can apply and receives a reference code
+PASS Teacher only sees their own applications
+PASS Employer sees applications to its jobs
+PASS Teacher cannot apply to an unapproved job
+PASS Teacher cannot apply on behalf of another teacher
+PASS Teacher can withdraw their pending application
+PASS Withdrawn application is gone from the employer view
+PASS Employer post starts pending review
+PASS Pending employer post is hidden from teachers
+PASS Super Admin can read platform settings
+PASS Super Admin can update platform settings
+PASS Employer cannot read platform settings
+PASS Employer cannot modify platform settings
+PASS Platform setting was not modified by the employer
+PASS Employer cannot approve subscription payments
+PASS Super Admin can approve subscription payments
+PASS Subscription approval activates the plan
+PASS Teacher can save a job
+PASS Saved jobs are private
+PASS Teacher can remove a saved job
+PASS Application reference codes are unique and anonymous
+
+131 passed, 0 failed
